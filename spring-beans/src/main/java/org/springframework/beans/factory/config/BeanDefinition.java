@@ -39,7 +39,7 @@ import org.springframework.lang.Nullable;
  */
 
 /**
- * 用来定义Bean
+ * 用來描述Bean的實例，把Bean抽象出來
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
@@ -73,6 +73,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * {@link org.springframework.beans.factory.parsing.ComponentDefinition},
 	 * but not when looking at the overall configuration of an application.
 	 */
+	/**
+	 * ROLE_SUPPORT = 1 表示這個Bean是用戶的，從配置文件中過來的
+	 */
 	int ROLE_SUPPORT = 1;
 
 	/**
@@ -81,6 +84,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * used when registering beans that are completely part of the internal workings
 	 * of a {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
 	 */
+	/**
+	 * 表示這個Bean是Spring的
+	 */
 	int ROLE_INFRASTRUCTURE = 2;
 
 
@@ -88,6 +94,10 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
+	 */
+	/**
+	 * 設置父類名字
+	 * @param parentName
 	 */
 	void setParentName(@Nullable String parentName);
 
@@ -127,6 +137,10 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #SCOPE_SINGLETON
 	 * @see #SCOPE_PROTOTYPE
 	 */
+	/**
+	 * Bean的作用域
+	 * @param scope
+	 */
 	void setScope(@Nullable String scope);
 
 	/**
@@ -141,6 +155,10 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
 	 */
+	/**
+	 * 設置嬾加載
+	 * @param lazyInit
+	 */
 	void setLazyInit(boolean lazyInit);
 
 	/**
@@ -149,6 +167,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 */
 	boolean isLazyInit();
 
+	/**
+	 * 設置依賴
+	 */
 	/**
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
@@ -167,6 +188,10 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * It does not affect explicit references by name, which will get resolved even
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
+	 */
+	/**
+	 * 是否自動裝配
+	 * @param autowireCandidate
 	 */
 	void setAutowireCandidate(boolean autowireCandidate);
 

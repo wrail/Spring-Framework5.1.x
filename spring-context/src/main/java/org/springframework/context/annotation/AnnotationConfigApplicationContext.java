@@ -53,8 +53,15 @@ import org.springframework.util.Assert;
  */
 public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
 
+	/**
+	 * 读取那些被加注解了的Bean，在构造方法中被实例化
+	 * BeanDefinition 是描述Bean的一個接口
+	 */
 	private final AnnotatedBeanDefinitionReader reader;
 
+	/**
+	 * 类路径Bean扫描器
+	 */
 	private final ClassPathBeanDefinitionScanner scanner;
 
 
@@ -62,7 +69,14 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * Create a new AnnotationConfigApplicationContext that needs to be populated
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
+	/**
+	 * 构造方法
+	 */
 	public AnnotationConfigApplicationContext() {
+		/**
+		 * 实例化reader
+		 * AnnotatedBeanDefinition  被注解的Bean
+		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
@@ -85,7 +99,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	/**
 	 * 注解配置上应用下文/Spring环境，Spring环境就是所有的组件组合在一起构成的Spring整体
-	 * @param componentClasses
+	 * @param componentClasses  是一个或多个的配置类
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
 		//在this调用的无参构造方法，间接的调用了父类的无参构造初始化了BeanFactory
@@ -161,8 +175,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @see #refresh()
 	 */
 	/**
-	 * 注册一个或多个类容器
-	 * @param componentClasses one or more component classes,
+	 * 比如有新加的类就可以使用它来注册，用后需要进行refresh
+	 * @param componentClasses 注册一个或多个类容器
+	 * 可以注册两类：它可以注册配置类，也可以注册Bean
+	 *
 	 */
 	@Override
 	public void register(Class<?>... componentClasses) {

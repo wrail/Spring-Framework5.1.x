@@ -28,6 +28,10 @@ import org.springframework.lang.Nullable;
  * Plain bean factories allow for programmatic registration of post-processors,
  * applying to all beans created through this factory.
  *
+ * 允许自定义修改新bean实例的工厂钩子，例如检查标记接口或用代理包装它们。
+ * ApplicationContexts可以自动检测，bean定义并将其应用于随后创建的任何bean，
+ * 普通bean工厂允许对后处理器进行编程注册，应用于通过此工厂创建的所有bean。
+ *
  * <p>Typically, post-processors that populate beans via marker interfaces
  * or the like will implement {@link #postProcessBeforeInitialization},
  * while post-processors that wrap beans with proxies will normally
@@ -39,6 +43,17 @@ import org.springframework.lang.Nullable;
  * @see DestructionAwareBeanPostProcessor
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
+ */
+
+/**
+ * BeanPostProcessor是Spring框架的一个扩展点（Spring中不止一个扩展点）
+ * 通过实现BeanPostProcessor就可以对bean的实例化进行干预，并且这个借口可以设置多个，依次执行（通过PriorityOrdered接口来实现）
+ *
+ * 例如：AOP就是在bean实例后期间将切面逻辑织入到bean的实例中去的，AOP也正是通过BeanPostProcessor和IOC建立了联系
+ *
+ * Spring也提供了很多的默认实现（很多） 自己实现的实例（需要@Component，Spring自身的是手动加入）如  lifecycle.TestBeanPostProcessor
+ *
+ *
  */
 public interface BeanPostProcessor {
 
@@ -54,6 +69,8 @@ public interface BeanPostProcessor {
 	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+	 *
+	 * 在实例bean初始化之前执行
 	 */
 	@Nullable
 	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -80,6 +97,8 @@ public interface BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 * @see org.springframework.beans.factory.FactoryBean
+	 *
+	 * 在实例初始化之后执行
 	 */
 	@Nullable
 	default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {

@@ -2,7 +2,7 @@ package test;
 
 import org.springframework.stereotype.Component;
 
-//@Component("dao")
+@Component("dao")
 public class DemoDao {
  
 	public void query() {

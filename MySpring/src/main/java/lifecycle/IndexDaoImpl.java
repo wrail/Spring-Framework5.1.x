@@ -25,7 +25,6 @@ Bean的回调
  */
 
 @Repository
-
 public class IndexDaoImpl implements IndexDao {
 
 	public IndexDaoImpl(){

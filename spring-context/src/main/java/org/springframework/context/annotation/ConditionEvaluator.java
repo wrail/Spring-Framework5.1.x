@@ -77,7 +77,15 @@ class ConditionEvaluator {
 	 * @param phase the phase of the call
 	 * @return if the item should be skipped
 	 */
+	/**
+	 * 判断是否跳过这个Bean（给予@Conditional）
+	 * @param metadata
+	 * @param phase
+	 * @return false就是不跳过
+	 */
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+
+		//如果没有被@Conditional注解就返回false
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}

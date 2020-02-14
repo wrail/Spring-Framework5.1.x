@@ -58,6 +58,10 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.support.AbstractApplicationContext#refresh()
  */
+
+/**
+ * 实现了bean的后置处理器
+ */
 class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 	private final ConfigurableApplicationContext applicationContext;
@@ -101,6 +105,10 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 	private void invokeAwareInterfaces(Object bean) {
 		if (bean instanceof Aware) {
+
+			/**
+			 * 如果这个bean实现了如下接口，就会将如下的变量set入这个bean中，可以通过这些变量对bean进行更进一步的控制
+			 */
 			if (bean instanceof EnvironmentAware) {
 				((EnvironmentAware) bean).setEnvironment(this.applicationContext.getEnvironment());
 			}
@@ -116,6 +124,8 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 			if (bean instanceof MessageSourceAware) {
 				((MessageSourceAware) bean).setMessageSource(this.applicationContext);
 			}
+			//如果bean实现了ApplicationContextAware 就可以将applicationContext set入bean里
+			//就可以实现在单例模式下的原型，在每次获取bean的时候都从applicationContext中获取最新的bean，而不是最初的bean
 			if (bean instanceof ApplicationContextAware) {
 				((ApplicationContextAware) bean).setApplicationContext(this.applicationContext);
 			}

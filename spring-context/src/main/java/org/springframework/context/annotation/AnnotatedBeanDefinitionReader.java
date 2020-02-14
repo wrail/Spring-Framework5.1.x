@@ -136,6 +136,7 @@ public class AnnotatedBeanDefinitionReader {
 	 *                         e.g. {@link Configuration @Configuration} classes
 	 */
 	public void register(Class<?>... componentClasses) {
+		//循环调用registerBean
 		for (Class<?> componentClass : componentClasses) {
 			registerBean(componentClass);
 		}
@@ -144,7 +145,7 @@ public class AnnotatedBeanDefinitionReader {
 	/**
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
-	 *
+	 * 根据给的class来注册
 	 * @param beanClass the class of the bean
 	 */
 	public void registerBean(Class<?> beanClass) {
@@ -155,7 +156,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations, using the given supplier for obtaining a new
 	 * instance (possibly declared as a lambda expression or method reference).
-	 *
+	 * 带有提供者
 	 * @param beanClass        the class of the bean
 	 * @param instanceSupplier a callback for creating an instance of the bean
 	 *                         (may be {@code null})
@@ -169,7 +170,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations, using the given supplier for obtaining a new
 	 * instance (possibly declared as a lambda expression or method reference).
-	 *
+	 * 给定class，提供者和bean的名字
 	 * @param beanClass        the class of the bean
 	 * @param name             an explicit name for the bean
 	 * @param instanceSupplier a callback for creating an instance of the bean
@@ -187,6 +188,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * @param beanClass  the class of the bean
 	 * @param qualifiers specific qualifier annotations to consider,
 	 *                   in addition to qualifiers at the bean class level
+	 *                   除bean的类级别的限定符之外的特定限定注解
 	 */
 	@SuppressWarnings("unchecked")
 	public void registerBean(Class<?> beanClass, Class<? extends Annotation>... qualifiers) {
@@ -225,13 +227,13 @@ public class AnnotatedBeanDefinitionReader {
 							@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
 
 		/**
-		 * 根据指定Bean创建一个AnnotatedGenericBeanDefinition
+		 * 根据指定Bean创建一个AnnotatedGenericBeanDefinition（被注解的Bean）
 		 * 用于大致描述类的一个数据结构，包含类的信息，元数据，和scope，lazy等等
 		 */
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
 
 		/**
-		 *判断是否跳过解析
+		 * 用于处理Conditional注解，是否在特定条件下阻断Bean的注册
 		 */
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
@@ -253,10 +255,16 @@ public class AnnotatedBeanDefinitionReader {
 		 */
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 
+		/**
+		 * 判断有没有特定的限定注解，如@Rrimary，@lazy，如果有就给abd进行set
+		 * 目前看来，这段代码没有任何意义，因为qualifiers传入的永远是null
+		 */
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
+				//如果有@Primary注解，就set为首选
 				if (Primary.class == qualifier) {
 					abd.setPrimary(true);
+				//@Lazy 懒加载
 				} else if (Lazy.class == qualifier) {
 					abd.setLazyInit(true);
 				} else {
@@ -264,12 +272,27 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
+		/**
+		 * 自己定义的注解（不重要）
+		 */
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}
 
+		/**
+		 * BeanDefinitionHolder 也是一个数据结构，是用于beanName和别名对Bean的对应
+		 */
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
+		/**
+		 * ProxyMode代理模型
+		 */
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+
+		/**
+		 * 最后再把definitionHolder进行注册
+		 * registry就是  BeanDefinitionRegistry
+		 * definitionHolder 是一种名称，别名和Bean对应的数据结构（相当于Map那种）
+		 */
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 

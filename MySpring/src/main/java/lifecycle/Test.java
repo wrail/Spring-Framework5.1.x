@@ -11,9 +11,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class Test {
 
 	public static void main(String[] args) {
-		AnnotationConfigApplicationContext context
+		AnnotationConfigApplicationContext applicationContext
 				= new AnnotationConfigApplicationContext(Config.class);
-
+		/*applicationContext.refresh();*/
+		applicationContext.getBean(IndexDao.class);
 
 
 	}

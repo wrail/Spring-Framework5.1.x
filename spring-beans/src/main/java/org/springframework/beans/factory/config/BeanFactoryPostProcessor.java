@@ -42,6 +42,10 @@ import org.springframework.beans.BeansException;
  * @see BeanPostProcessor
  * @see PropertyResourceConfigurer
  */
+
+/**
+ * 也是Spring的扩展点之一
+ */
 @FunctionalInterface
 public interface BeanFactoryPostProcessor {
 

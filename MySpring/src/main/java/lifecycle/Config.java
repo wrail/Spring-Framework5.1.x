@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 @Configuration
-@ComponentScan()
+@ComponentScan("lifecycle")
 public class Config {
 }
