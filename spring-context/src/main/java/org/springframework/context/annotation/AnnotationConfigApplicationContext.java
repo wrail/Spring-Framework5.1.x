@@ -76,8 +76,14 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		/**
 		 * 实例化reader
 		 * AnnotatedBeanDefinition  被注解的Bean
+		 * 读取那些被加注解了的Bean
 		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+
+		/**
+		 * 实例化一个scanner
+		 * 能够扫描类，包，并转换为bd
+		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -105,6 +111,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		//在this调用的无参构造方法，间接的调用了父类的无参构造初始化了BeanFactory
 		//在自己的构造方法中初始化一个读取器和一个扫描器
 		this();
+		//读取一个/多个类，并注册到map
 		register(componentClasses);
 		refresh();
 	}

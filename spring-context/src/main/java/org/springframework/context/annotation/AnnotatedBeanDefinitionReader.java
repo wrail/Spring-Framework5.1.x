@@ -87,6 +87,7 @@ public class AnnotatedBeanDefinitionReader {
 		Assert.notNull(environment, "Environment must not be null");
 		this.registry = registry;
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
+		//AnnotatedBeanDefinitionReader将具体任务交给AnnotationConfigUtils.registerAnnotationConfigProcessors
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 
@@ -228,7 +229,7 @@ public class AnnotatedBeanDefinitionReader {
 
 		/**
 		 * 根据指定Bean创建一个AnnotatedGenericBeanDefinition（被注解的Bean）
-		 * 用于大致描述类的一个数据结构，包含类的信息，元数据，和scope，lazy等等
+		 * 用于大致描述bean的一个数据结构，包含类的信息，元数据，和scope，lazy等等
 		 */
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
 
