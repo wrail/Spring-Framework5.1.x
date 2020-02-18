@@ -42,6 +42,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 4.3.4
  */
+
 class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
 
 	private static final Log logger = LogFactory.getLog(ApplicationListenerDetector.class);
@@ -68,6 +69,7 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
+		//如果是ApplicationListener的子类 就加入listener列表
 		if (bean instanceof ApplicationListener) {
 			// potentially not detected as a listener by getBeanNamesForType retrieval
 			Boolean flag = this.singletonNames.get(beanName);

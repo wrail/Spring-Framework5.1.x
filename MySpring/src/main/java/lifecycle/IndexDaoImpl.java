@@ -24,7 +24,7 @@ Bean的回调
 @Lazy 懒加载 ，用的时候才进行加载
  */
 
-@Repository
+@Repository()
 public class IndexDaoImpl implements IndexDao {
 
 	public IndexDaoImpl(){

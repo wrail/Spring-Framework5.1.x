@@ -12,9 +12,17 @@ public class Test {
 
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext applicationContext
-				= new AnnotationConfigApplicationContext(Config.class);
-		/*applicationContext.refresh();*/
-		applicationContext.getBean(IndexDao.class);
+				= new AnnotationConfigApplicationContext();
+
+		applicationContext.register(Config.class);
+		applicationContext.refresh();
+
+		//加入自定义的BeanFactory后置处理器
+		applicationContext.addBeanFactoryPostProcessor(new TestBeanFactoryPostProcessor());
+
+		IndexDao bean = applicationContext.getBean(IndexDaoImpl1.class);
+		IndexDao bean1 = applicationContext.getBean(IndexDaoImpl1.class);
+		System.out.println(bean.hashCode()==bean1.hashCode());
 
 
 	}
