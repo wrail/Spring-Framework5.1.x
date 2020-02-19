@@ -5,7 +5,7 @@ package lifecycle;
  * @Description
  */
 
-import org.springframework.beans.factory.BeanFactory;
+
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Test {
@@ -15,11 +15,12 @@ public class Test {
 				= new AnnotationConfigApplicationContext();
 
 		applicationContext.register(Config.class);
-		applicationContext.refresh();
 
-		//加入自定义的BeanFactory后置处理器
+		//Spring初始会注册七个bean给Map
+
+		//加入自定义的BeanFactory后置处理器   有这个可以省略@Component注解
 		applicationContext.addBeanFactoryPostProcessor(new TestBeanFactoryPostProcessor());
-
+		applicationContext.refresh();
 		IndexDao bean = applicationContext.getBean(IndexDaoImpl1.class);
 		IndexDao bean1 = applicationContext.getBean(IndexDaoImpl1.class);
 		System.out.println(bean.hashCode()==bean1.hashCode());
