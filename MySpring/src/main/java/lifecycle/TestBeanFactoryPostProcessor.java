@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 /**
  * 例如：自定义修改某某bean为原型模式
  */
-@Component
+
 public class TestBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {

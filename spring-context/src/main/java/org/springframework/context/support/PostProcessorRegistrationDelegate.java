@@ -42,6 +42,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Delegate for AbstractApplicationContext's post-processor handling.
+ * 为AbstractApplicationContext 后置处理器做代理
  *
  * @author Juergen Hoeller
  * @since 4.0
@@ -58,19 +59,24 @@ final class PostProcessorRegistrationDelegate {
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
+		//自己定义的
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			//存放自己定义的BeanFactoryPostProcessor
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+			//存放自己定义的BeanDefinitionRegistryPostProcessor
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			//自定义的BeanFactoryPostProcessor
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				//实现的是BeanDefinitionRegistryPostProcessor
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
 				}
+				//实现的是BeanFactoryPostProcessor
 				else {
 					regularPostProcessors.add(postProcessor);
 				}
@@ -80,20 +86,36 @@ final class PostProcessorRegistrationDelegate {
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
+			//存放Spring内部实现了BeanDefinitionRegistryPostProcessor
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			//首先调用实现PriorityOrdered接口的BeanDefinitionRegistryPostProcessors
+			/**
+			 * getBeanNamesForType   通过给定类型，返回匹配bean的名称(可能会是多个)
+			 *
+			 * 根据BeanDefinitionRegistryPostProcessor匹配出来
+			 * name：internalConfigurationAnnotationProcessor
+			 *对应的Bean：ConfigurationClassPostProcessor  （在之前已经注册进去）
+			 */
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+					// ConfigurationClassPostProcessor
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
 					processedBeans.add(ppName);
 				}
 			}
+			//排序
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
+			//将currentRegistryProcessor与registryProcessors合并（自己定义的和内部的BeanDefinitionRegistryPostProcessor）
 			registryProcessors.addAll(currentRegistryProcessors);
+			//将currentRegistryProcessors传进去进行执行  方法调用
+			//里面放的是Spring内部实现了BeanDefinitionRegistryPostProcessor
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+
+			//清除临时使用的List
 			currentRegistryProcessors.clear();
 
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
@@ -272,7 +294,9 @@ final class PostProcessorRegistrationDelegate {
 	private static void invokeBeanDefinitionRegistryPostProcessors(
 			Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
 
+		//循环所有BeanDefinitionRegistryPostProcessor类型
 		for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
+			//调用扩展方法
 			postProcessor.postProcessBeanDefinitionRegistry(registry);
 		}
 	}
