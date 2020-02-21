@@ -95,7 +95,7 @@ abstract class ConfigurationClassUtils {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
-		//如果是加了注解，但是className和BD对应类不同，但是BD中存在BeanClass，那就根据BD拿出来的类进行标准化元注解
+		//如果是没加注解的BD（也可以直接注册），那就根据BD拿出来的类进行标准化元注解
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
@@ -117,6 +117,8 @@ abstract class ConfigurationClassUtils {
 		}
 
 		//isFullConfigurationCandidate  将拿出来的元注解判断是不是@Configuration注解，是的话就设置为full
+		//如果既有@Configuration又有@Import，会先解析@Configuration，Import会在解析bean的时候
+		// 但是如果是直接加的Import等注解，而没有加@Configuration，那就去解析@Import等等
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}

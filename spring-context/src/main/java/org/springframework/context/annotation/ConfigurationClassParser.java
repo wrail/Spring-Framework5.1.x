@@ -306,11 +306,13 @@ class ConfigurationClassParser {
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			//循环取出并解析所有配置类
 			for (AnnotationAttributes componentScan : componentScans) {
+
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
 				// 被标注为@ComponentScan的配置类，立即执行其中的扫描工作->this.componentScanParser.parse
-				//scannedBeanDefinitions 存放的就是通过ComponentScan扫描出来的一些Bean
+				//scannedBeanDefinitions 存放的就是通过ComponentScan规定的信息（如：basePackage，value，exclude，isLazy等等）扫描出来的一些Bean
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
 					BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();

@@ -64,19 +64,19 @@ final class PostProcessorRegistrationDelegate {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 			//存放自己定义的BeanFactoryPostProcessor
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
-			//存放自己定义的BeanDefinitionRegistryPostProcessor
+			//存放自己定义的BeanDefinitionRegistryPostProcessor（是BeanFactoryPostProcessor的子类）
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			//自定义的BeanFactoryPostProcessor
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
-				//实现的是BeanDefinitionRegistryPostProcessor
+				//实现的是BeanDefinitionRegistryPostProcessor的话就add到registryProcessors里
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
 				}
-				//实现的是BeanFactoryPostProcessor
+				//实现的是BeanFactoryPostProcessor的话就add到regularPostProcessors
 				else {
 					regularPostProcessors.add(postProcessor);
 				}
@@ -86,6 +86,7 @@ final class PostProcessorRegistrationDelegate {
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
+
 			//存放Spring内部实现了BeanDefinitionRegistryPostProcessor
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
@@ -96,7 +97,7 @@ final class PostProcessorRegistrationDelegate {
 			 *
 			 * 根据BeanDefinitionRegistryPostProcessor匹配出来
 			 * name：internalConfigurationAnnotationProcessor
-			 *对应的Bean：ConfigurationClassPostProcessor  （在之前已经注册进去）
+			 * 对应的Bean：ConfigurationClassPostProcessor  （在之前已经注册进去）
 			 */
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
@@ -296,7 +297,8 @@ final class PostProcessorRegistrationDelegate {
 
 		//循环所有BeanDefinitionRegistryPostProcessor类型
 		for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
-			//调用扩展方法
+			//调用扩展方法（调用的是每个BeanDefinitionRegistryPostProcessor里的方法
+			// 目前看来就只有一个，那就是ConfigurationClassPostProcessor里的方法）
 			postProcessor.postProcessBeanDefinitionRegistry(registry);
 		}
 	}

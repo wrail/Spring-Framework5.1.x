@@ -83,6 +83,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		/**
 		 * 实例化一个scanner
 		 * 能够扫描类，包，并转换为bd
+		 * 这个scan存在的意义就是手动扫描，平时用的@ComponentScan并没有用这个scanner而是又重新new了一个ClassPathBeanDefinitionScanner
 		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
