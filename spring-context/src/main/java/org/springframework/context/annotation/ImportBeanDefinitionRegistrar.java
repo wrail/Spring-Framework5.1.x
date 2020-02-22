@@ -47,6 +47,12 @@ import org.springframework.core.type.AnnotationMetadata;
  * @see ImportSelector
  * @see Configuration
  */
+
+/**
+ * 能参与工厂建设的两个接口
+ * 1.ImportBeanDefinitionRegistrar
+ * 2.BeanFactoryPostProcessor
+ */
 public interface ImportBeanDefinitionRegistrar {
 
 	/**

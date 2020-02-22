@@ -8,6 +8,12 @@ package lifecycle;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+/**
+ * 注册一个Bean的几个途径
+ * 1.registry方法  需要类，没办法参与BD
+ * 2.scan  需要类，没办法参与BD
+ * 3.ImportBeanDefinitionRegistrar   可以参与BD
+ */
 public class Test {
 
 	public static void main(String[] args) {
