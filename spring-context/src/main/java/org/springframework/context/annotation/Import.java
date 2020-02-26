@@ -49,9 +49,17 @@ import java.lang.annotation.Target;
  * @see ImportSelector
  * @see ImportResource
  */
+
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+
+/**
+ * 可以Import三种类型：
+ * Configuration
+ * ImportSelector
+ * ImportResource
+ */
 public @interface Import {
 
 	/**

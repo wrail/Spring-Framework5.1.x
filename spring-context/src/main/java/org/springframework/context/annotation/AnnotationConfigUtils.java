@@ -241,7 +241,7 @@ public abstract class AnnotationConfigUtils {
 			return null;
 		}
 	}
-
+    //处理通用注解
 	public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}

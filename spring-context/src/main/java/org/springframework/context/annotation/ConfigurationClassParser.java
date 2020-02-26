@@ -188,6 +188,7 @@ class ConfigurationClassParser {
 			}
 		}
 
+		//延迟的ImportSelectorHandler
 		this.deferredImportSelectorHandler.process();
 	}
 
@@ -230,6 +231,7 @@ class ConfigurationClassParser {
         //第一次进入会为null，如果不是第一次就不为null
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
+			//判断当前类（当前的类是配置类，一般很少被引用到）有没有被Import，并进行处理
 			if (configClass.isImported()) {
 				if (existingClass.isImported()) {
 					existingClass.mergeImportedBy(configClass);
@@ -246,9 +248,10 @@ class ConfigurationClassParser {
 		}
 
 		// Recursively process the configuration class and its superclass hierarchy.
-		//递归处理配置类及其超类层次结构
+		//将ConfigClass转换为一个SourceClass
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
+			//处理配置类
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass);
 		}
 		while (sourceClass != null);
@@ -304,7 +307,7 @@ class ConfigurationClassParser {
 		//先判断是否为null或@Conditional标注需要跳过
 		if (!componentScans.isEmpty() &&
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
-			//循环取出并解析所有配置类
+			//循环取出并解析所有配置类（因为@Configuration后面是一个数组）
 			for (AnnotationAttributes componentScan : componentScans) {
 
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
@@ -572,7 +575,7 @@ class ConfigurationClassParser {
 	 * 可以解析@Import的三种类型
 	 * 1.ImportSelector类型
 	 * 2.ImportBeanDefinitionRegistrar类型，在MapperScan中用到
-	 * 3.普通的类
+	 * 3.普通的配置类
 	 * @param configClass
 	 * @param currentSourceClass
 	 * @param importCandidates

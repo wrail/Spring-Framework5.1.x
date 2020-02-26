@@ -309,7 +309,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return a corresponding Set of autodetected bean definitions
 	 */
 	/**
-	 * 扫描候选的组件
+	 * 扫描候选的组件,使用的ASM
 	 * @param basePackage
 	 * @return
 	 */
@@ -318,7 +318,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		if (this.componentsIndex != null && indexSupportsIncludeFilters()) {
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
-		//未加入索引依赖就是下面
+		//未加入索引依赖就是下面（使用ASM）
 		else {
 			return scanCandidateComponents(basePackage);
 		}
@@ -428,7 +428,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			 */
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-			//资源文件
+			//资源文件（使用ASM读取文件）
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -439,14 +439,19 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						//是否是候选组件
 						if (isCandidateComponent(metadataReader)) {
+							//继承的是GenericBeanDefinition（GBD继承AbstractBeanDefinition）
+							//实现AnnotatedBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);
+							//进一步判断是否是一个合格的组件，这两个方法是不同的
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
 								}
+								//如果合格就加入到候选中去
 								candidates.add(sbd);
 							}
 							else {
@@ -536,6 +541,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
 		AnnotationMetadata metadata = beanDefinition.getMetadata();
+		//是否是一个具体的类（可以实例化的，而不是接口，抽象类等等）
 		return (metadata.isIndependent() && (metadata.isConcrete() ||
 				(metadata.isAbstract() && metadata.hasAnnotatedMethods(Lookup.class.getName()))));
 	}

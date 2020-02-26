@@ -276,18 +276,22 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		//循环所有传入的包路径  每扫描到一个就加入map
 		for (String basePackage : basePackages) {
 
-			//存放满足条件的组件
+			//找出满足条件的组件 findCandidateComponents
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				//解析Scope信息
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
-				//如果是AbstractBeanDefinition子类，就进行设置一些默认信息
+
+				//如果是AbstractBeanDefinition子类（也就是说如果是BD就会满足条件），就进行设置一些默认信息
 				if (candidate instanceof AbstractBeanDefinition) {
+					//设置默认值如lazy，init，AutowireModel（no，byType，byName）等等
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
+				//如果是带有注解的BD（和上面的if并不冲突），可以进一步修改上边设置的默认值
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					//处理这些通用注解，如@Lazy，@Primary，@DependOn，@Role，@Description
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
 				if (checkCandidate(beanName, candidate)) {
@@ -310,6 +314,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		//设置默认值
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));
