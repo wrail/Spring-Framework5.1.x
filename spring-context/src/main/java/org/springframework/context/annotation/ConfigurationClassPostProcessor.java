@@ -89,7 +89,7 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
 
 /**
  * 用于处理@Configuration标注的类
- * 实现了BeanDefinitionRegistryPostProcessor和PriorityOrdered  会在PostProcessorRegistrationDelegate用到
+ * 实现了BeanDefinitionRegistryPostProcessor（有在容器启动时注册BD的能力）和PriorityOrdered  会在PostProcessorRegistrationDelegate用到
  * BeanDefinitionRegistryPostProcessor继承了BeanFactoryPostProcessor，是它的扩展，因此这个本类也是一个BeanFactory的后置处理器
  */
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor,
@@ -117,6 +117,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 	private boolean setMetadataReaderFactoryCalled = false;
 
+	//存放registryId（set保证唯一）
 	private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
 	private final Set<Integer> factoriesPostProcessed = new HashSet<>();
@@ -225,19 +226,25 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	/**
 	 * Derive further bean definitions from the configuration classes in the registry.
 	 */
+	//从注册表中的配置类派生进一步的bean定义  就是通过配置类去寻找符合条件的Bean
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+
 		int registryId = System.identityHashCode(registry);
+		//如果存在就说明postProcessBeanDefinitionRegistry已经调用过了这个后置处理器
 		if (this.registriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
 					"postProcessBeanDefinitionRegistry already called on this post-processor against " + registry);
 		}
+		//如果存在就说明postProcessBeanFactory已经调用过这个后置处理器
 		if (this.factoriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
 					"postProcessBeanFactory already called on this post-processor against " + registry);
 		}
+		//不存在就加入到registriesPostPrcoessed
 		this.registriesPostProcessed.add(registryId);
 
+		//处理配置类
 		processConfigBeanDefinitions(registry);
 	}
 
@@ -289,7 +296,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
-			//判断是否是Configuration类或带有@Import @Component @ImportResource @ComponentScan
+			//判断是否是Configuration类或带有@Import @Component @ImportResource @ComponentScan，有就加入到候选list去
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
