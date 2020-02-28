@@ -135,6 +135,7 @@ class ConfigurationClassParser {
 
 	private final List<String> propertySourceNames = new ArrayList<>();
 
+	//存放Bean的栈，可以解决循环引用
 	private final ImportStack importStack = new ImportStack();
 
 	private final DeferredImportSelectorHandler deferredImportSelectorHandler = new DeferredImportSelectorHandler();
@@ -588,22 +589,26 @@ class ConfigurationClassParser {
 	 * 1.ImportSelector类型
 	 * 2.ImportBeanDefinitionRegistrar类型，在MapperScan中用到
 	 * 3.普通的配置类
-	 * @param configClass
-	 * @param currentSourceClass
-	 * @param importCandidates
-	 * @param checkForCircularImports
+	 * @param configClass 当前的配置类
+	 * @param currentSourceClass 当前的源文件
+	 * @param importCandidates  需要导入的类的集合
+	 * @param checkForCircularImports 是否导入
 	 */
 	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
 			Collection<SourceClass> importCandidates, boolean checkForCircularImports) {
 
+		//如果没有需要导入的bena就直接返回
 		if (importCandidates.isEmpty()) {
 			return;
 		}
 
+		// checkForCircularImports是传进来的变量（true/false） isChainedImportOnStack(configClass)判断存不存在循环引用
+		// 就是需要导入的类需要引用当前配置类，当前配置类又引用需要导入这个配置类
 		if (checkForCircularImports && isChainedImportOnStack(configClass)) {
 			this.problemReporter.error(new CircularImportProblem(configClass, this.importStack));
 		}
 		else {
+			//如果正常当前配置类加入到栈里（因此可以这么说，这个栈里面的类不存在循环引用）
 			this.importStack.push(configClass);
 			try {
 				for (SourceClass candidate : importCandidates) {
@@ -612,10 +617,13 @@ class ConfigurationClassParser {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						//通过转换得来的SourceClass得到Class（就是需要Import的类，里面有name可以通过反射获取）
 						Class<?> candidateClass = candidate.loadClass();
-						//通过反射实例化一个对象
+						//通过反射实例化一个对象（需要被Import的）
 						ImportSelector selector = BeanUtils.instantiateClass(candidateClass, ImportSelector.class);
+
 						ParserStrategyUtils.invokeAwareMethods(
 								selector, this.environment, this.resourceLoader, this.registry);
+
+						//是否是延迟引入
 						if (selector instanceof DeferredImportSelector) {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}
@@ -641,7 +649,14 @@ class ConfigurationClassParser {
 					else {
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
-						//普通类
+						// 不是ImportSelector或者是ImportBeanDefinitionRegistrar类型的话就按照普通类来处理
+						/**
+						 * 四种类的注册时机：
+						 * 1.普通类——扫描就注册
+						 * 2.ImportSelector类——先放到configurationClasses这个Map中去，然后调用loadBeanDefinition（ConfigurationClassPostProcessor）去注册
+						 * 3.Registrar类——先放到importBeanDefinitionRegistrars中，然后调用loadBeanDefinition
+						 * 4.Import普通类——先放到configurationClasses中，然后注册
+						 */
 						this.importStack.registerImport(
 								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
 						processConfigurationClass(candidate.asConfigClass(configClass));
