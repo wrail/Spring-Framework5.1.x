@@ -5,7 +5,9 @@ package imports;
  * @Description
  */
 
-public class MyIndexDao {
+
+public class MyIndexDao implements IndexDao {
+	
 
 	public void query(){
 		System.out.println("MyIndexDao");

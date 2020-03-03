@@ -122,6 +122,7 @@ class ConfigurationClassBeanDefinitionReader {
 	 * Read a particular {@link ConfigurationClass}, registering bean definitions
 	 * for the class itself and all of its {@link Bean} methods.
 	 */
+	//读取特定的配置类，类本身和所有带有Bean标签的方法进行加载
 	private void loadBeanDefinitionsForConfigurationClass(
 			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
 
@@ -134,10 +135,13 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		//如果是一个被Import的，会被spring在这里完成注册
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
+			//根据方法名进行注册
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
@@ -212,13 +216,16 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setResource(configClass.getResource());
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
+		//如果是静态的方法就按照不是单例的进行装载，普通bean不是beanFactory的话，cglib是拦截不到的
+		//因此如果在加@Configuration或不加的条件下，几次调用就完成几次bean的装载
 		if (metadata.isStatic()) {
-			// static @Bean method
+			// static @Bean method  直接设置的是一个beanClassName
 			beanDef.setBeanClassName(configClass.getMetadata().getClassName());
 			beanDef.setFactoryMethodName(methodName);
 		}
+		//如果不是静态的就注册为单例的类
 		else {
-			// instance @Bean method
+			// instance @Bean method  设置factoryClassName
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}

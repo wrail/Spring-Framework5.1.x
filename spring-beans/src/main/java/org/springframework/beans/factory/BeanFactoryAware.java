@@ -38,6 +38,11 @@ import org.springframework.beans.BeansException;
  * @see InitializingBean
  * @see org.springframework.context.ApplicationContextAware
  */
+
+/**
+ * 在Bean的实例化之后调用，在Setter之前调用
+ * 实现此接口可以让bean获取到容器的内部信息（实现它的类可以获取到beanFactory）
+ */
 public interface BeanFactoryAware extends Aware {
 
 	/**
