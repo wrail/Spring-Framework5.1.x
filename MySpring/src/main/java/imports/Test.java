@@ -30,6 +30,7 @@ public class Test {
 		//对子类所有方法进行拦截打印
 		indexDao.query();
 
+		System.out.println("--------"+context.getBean("myIndexDao1").getClass().getName());
 
 
 	}

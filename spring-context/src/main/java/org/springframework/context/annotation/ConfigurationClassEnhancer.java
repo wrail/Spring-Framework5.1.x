@@ -130,6 +130,7 @@ class ConfigurationClassEnhancer {
 		//增强父类，给代理类设置父类为当前配置类并进行增强（由此可见Cglib是基于继承而来的）
 		enhancer.setSuperclass(configSuperClass);
 		//设置增强接口  EnhancedConfiguration等价与BeanFactoryAware可以在子类中获取BeanFactory
+		//添加这个接口的作用就是能获取beanFactory
 		enhancer.setInterfaces(new Class<?>[] {EnhancedConfiguration.class});
 
 		enhancer.setUseFactory(false);
@@ -348,6 +349,7 @@ class ConfigurationClassEnhancer {
 			// Determine whether this bean is a scoped-proxy
 			if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
 				String scopedBeanName = ScopedProxyCreator.getTargetBeanName(beanName);
+				//是否正在创建
 				if (beanFactory.isCurrentlyInCreation(scopedBeanName)) {
 					beanName = scopedBeanName;
 				}
@@ -410,6 +412,7 @@ class ConfigurationClassEnhancer {
 			// the bean method, direct or indirect. The bean may have already been marked
 			// as 'in creation' in certain autowiring scenarios; if so, temporarily set
 			// the in-creation status to false in order to avoid an exception.
+			//判断是否正在创建这个Bean
 			boolean alreadyInCreation = beanFactory.isCurrentlyInCreation(beanName);
 			try {
 				if (alreadyInCreation) {
@@ -427,6 +430,7 @@ class ConfigurationClassEnhancer {
 						}
 					}
 				}
+				//通过getBean拿出这个Bean
 				Object beanInstance = (useArgs ? beanFactory.getBean(beanName, beanMethodArgs) :
 						beanFactory.getBean(beanName));
 				if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
@@ -508,6 +512,11 @@ class ConfigurationClassEnhancer {
 		 * factory method. Compares method name and parameter types only in order to work
 		 * around a potential problem with covariant return types (currently only known
 		 * to happen on Groovy classes).
+		 */
+		/**
+		 * 是否执行过方法
+		 * @param method
+		 * @return
 		 */
 		private boolean isCurrentlyInvokedFactoryMethod(Method method) {
 			Method currentlyInvoked = SimpleInstantiationStrategy.getCurrentlyInvokedFactoryMethod();

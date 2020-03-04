@@ -57,6 +57,7 @@ final class PostProcessorRegistrationDelegate {
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		//放所有的BeanFactoryPostProcessor
 		Set<String> processedBeans = new HashSet<>();
 
 		//自己定义的
@@ -153,6 +154,7 @@ final class PostProcessorRegistrationDelegate {
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			//循环执行BeanFactoryPostProcessor和BeanDefinitionRegistryPostProcessor
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+			//执行自定义的BeanFactoryPostProcessor
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 
@@ -163,29 +165,41 @@ final class PostProcessorRegistrationDelegate {
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
+		//不要在这里初始化FactoryBeans：我们需要让所有常规bean都未初始化，以便让bean工厂后处理器应用到它们！
+		//再次拿到所有的BeanFactoryPostProcessor的所有Name
 		String[] postProcessorNames =
 				beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 
 		// Separate between BeanFactoryPostProcessors that implement PriorityOrdered,
 		// Ordered, and the rest.
+		//实现BeanFactoryPostProcessor和Ordered的分离，转到一个
 		List<BeanFactoryPostProcessor> priorityOrderedPostProcessors = new ArrayList<>();
 		List<String> orderedPostProcessorNames = new ArrayList<>();
 		List<String> nonOrderedPostProcessorNames = new ArrayList<>();
+
+		//循环所有的PostProcessor
 		for (String ppName : postProcessorNames) {
+			//如果set中包含就不管   因为在上面已经处理过了，主要针对新加入进来的
 			if (processedBeans.contains(ppName)) {
 				// skip - already processed in first phase above
 			}
+			//如果有在期间有新的PostProcessor加入，并存在有限关系实现PriorityOrdered
 			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+				//放到带有优先关系的priorityOrderedPostProcessors List中
 				priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
 			}
+			//有实现Ordered接口
 			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+				//放到orderedPostProcessorNames List中去
 				orderedPostProcessorNames.add(ppName);
 			}
+			//否则就是不带有优先关系的PostProcessor，就加入到nonOrderedPostProcessorNames List中去
 			else {
 				nonOrderedPostProcessorNames.add(ppName);
 			}
 		}
 
+		//然后后面的步骤和上面一样
 		// First, invoke the BeanFactoryPostProcessors that implement PriorityOrdered.
 		sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
 		invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors, beanFactory);
@@ -207,6 +221,7 @@ final class PostProcessorRegistrationDelegate {
 
 		// Clear cached merged bean definitions since the post-processors might have
 		// modified the original metadata, e.g. replacing placeholders in values...
+		//清除缓存
 		beanFactory.clearMetadataCache();
 	}
 

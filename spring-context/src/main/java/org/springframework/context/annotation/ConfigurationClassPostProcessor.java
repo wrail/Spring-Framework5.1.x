@@ -91,6 +91,7 @@ import static org.springframework.context.annotation.AnnotationConfigUtils.CONFI
  * 用于处理@Configuration标注的类
  * 实现了BeanDefinitionRegistryPostProcessor（有在容器启动时注册BD的能力）和PriorityOrdered  会在PostProcessorRegistrationDelegate用到
  * BeanDefinitionRegistryPostProcessor继承了BeanFactoryPostProcessor，是它的扩展，因此这个本类也是一个BeanFactory的后置处理器
+ * 它干了几乎Configuration类的所有功能
  */
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor,
 		PriorityOrdered, ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
@@ -270,8 +271,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
 		}
 
-		//产生cglib代理
+		//给配置类产生cglib代理
 		enhanceConfigurationClasses(beanFactory);
+		//添加一个后置处理器，为了让beanFactory在cglib中使用
 		beanFactory.addBeanPostProcessor(new ImportAwareBeanPostProcessor(beanFactory));
 	}
 
@@ -363,7 +365,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			//把扫描出来的bean（BD）加入到Factory的BDMap中去
+
+
+			//把扫描出来的配置类bean（BD）加入到Factory的BDMap中去，无论是Import还是Bean注解等等
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 

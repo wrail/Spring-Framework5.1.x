@@ -108,11 +108,12 @@ class ConfigurationClassBeanDefinitionReader {
 
 
 	/**
-	 * Read {@code configurationModel}, registering bean definitions
+	 * Read {@code configurationModel}, registering bean definitions 传入的是配置类
 	 * with the registry based on its contents.
 	 */
 	public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
 		TrackedConditionEvaluator trackedConditionEvaluator = new TrackedConditionEvaluator();
+		//循环去加载配置类
 		for (ConfigurationClass configClass : configurationModel) {
 			loadBeanDefinitionsForConfigurationClass(configClass, trackedConditionEvaluator);
 		}
@@ -140,6 +141,7 @@ class ConfigurationClassBeanDefinitionReader {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
 
+		//拿出所有加了@Bean的方法，循环将它进行加载
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			//根据方法名进行注册
 			loadBeanDefinitionsForBeanMethod(beanMethod);
