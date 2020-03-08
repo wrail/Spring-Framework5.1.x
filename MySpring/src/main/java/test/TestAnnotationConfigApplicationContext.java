@@ -6,6 +6,7 @@ package test;
  */
 
 import org.spring.utils.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 public class TestAnnotationConfigApplicationContext {
 

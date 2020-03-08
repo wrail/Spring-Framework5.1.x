@@ -235,21 +235,28 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
+	/**
+	 * 根据name返回一个Bean实例，FactoryBean和普通Bean有不同的处理
+	 * @return beanInstance
+	 * @throws BeansException
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 
 		/**
+		 * 	 * 需要进行一定的转换才能通过beanName取查找Bean
 		 * 通过name获取beanName，不用name直接取Bean的原因是
 		 * 1.FactoryBean中会以&来区分是当前FactoryBean对象或getObject返回的对象
 		 * 2.别名
-		 * 需要进行一定的转换才能通过beanName取查找Bean
 		 */
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		//在初始化的时候先拿一下，看存不存在这个单例对象，如果不存在再进行实例化
 		Object sharedInstance = getSingleton(beanName);
+		//如果存在此单例对象
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
@@ -260,17 +267,21 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			//那就直接取出来
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
+		//如果此单例对象没有被初始化
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			// 有没有正在创建中的对象（有可能出现循环引用）
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
 			// Check if bean definition exists in this factory.
+			// 如果没有自己去扩展拿这个parentBeanFactory就为空
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.

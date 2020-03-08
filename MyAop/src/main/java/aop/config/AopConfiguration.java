@@ -14,7 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 开启AspectJ自动代理
  */
 @Configuration
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy   //这个注解核心就是给spring添加一个可以处理aop的后置处理器
 @ComponentScan("aop")
 public class AopConfiguration {
 }

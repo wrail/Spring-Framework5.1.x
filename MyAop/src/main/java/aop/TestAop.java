@@ -6,12 +6,14 @@ package aop;
  */
 
 import aop.config.AopConfiguration;
-import aop.dao.AopDao;
 import aop.dao.Dao;
-import aop.dao.DefaultDao;
-import aop.dao.OrderDao;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+
+/**
+ * spring 用aop或cglib是动态代理，动态织入的
+ * aspectJ是编译时织入的，静态代理
+ */
 public class TestAop {
 
 	public static void main(String[] args) {
