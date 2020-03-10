@@ -331,9 +331,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
+				// 创建Bean的实例
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
+							// 创建Bean  AbstractAutowireCapableBeanFactory的createBean
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {

@@ -817,6 +817,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * respecting explicit order if given.
 	 * <p>Must be called before any instantiation of application beans.
 	 */
+	/**
+	 * 注册Bean的后置处理器
+	 * @param beanFactory
+	 */
 	protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
 		PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
 	}
@@ -945,6 +949,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * Finish the initialization of this context's bean factory,
 	 * initializing all remaining singleton beans.
+	 * 完成单例对象（并不是全部，比如还有一些spring内部放进去的Bean）的初始化
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
@@ -977,6 +982,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Instantiate all remaining (non-lazy-init) singletons.
 		// 初始化（剩余的单例对象）还未开始 preInstantiateSingletons顾名思义就是初始化（实例化）之前
+		// 调用DefaultListableBeanFactory的preInstantiateSingletons方法
 		beanFactory.preInstantiateSingletons();
 	}
 

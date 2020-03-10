@@ -857,7 +857,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						}
 					}
 				}
-				//不是FactoryBean就是普通的Bean
+				//不是FactoryBean就是普通的Bean就直接调用getBean间接调用doGetBean
 				else {
 					getBean(beanName);
 				}
