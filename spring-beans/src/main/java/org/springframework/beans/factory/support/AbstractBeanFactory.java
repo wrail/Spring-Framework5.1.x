@@ -167,6 +167,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
 	/** Names of beans that have already been created at least once. */
+	// 存的是已经被创建的Bean的Name
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	/** Names of beans that are currently in creation. */
@@ -194,6 +195,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
 
+	// 无论是初始化还是get都会进入到这个getBean方法
 	@Override
 	public Object getBean(String name) throws BeansException {
 		return doGetBean(name, null, null, false);
@@ -254,7 +256,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
-		//在初始化的时候先拿一下，看存不存在这个单例对象，如果不存在再进行实例化
+		// 在初始化的时候先拿一下，看存不存在这个单例对象，如果不存在再进行实例化
+		// 为什么在要初始化的时候先进行get？在getBean的时候调用理所当然，在此就说不过去了
+		// 第二批初始化？懒加载？但是懒加载的话里面也必然是没有的
 		Object sharedInstance = getSingleton(beanName);
 		//如果存在此单例对象
 		if (sharedInstance != null && args == null) {
@@ -267,21 +271,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			//那就直接取出来
+			//单例Map中存在的话那就直接取出来
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
-
 		//如果此单例对象没有被初始化
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
-			// 有没有正在创建中的对象（有可能出现循环引用）
+			// 这个bean是正在创建的原型对象？如果是就抛出异常   一般情况应该是不会满足这个条件的
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
 			// Check if bean definition exists in this factory.
-			// 如果没有自己去扩展拿这个parentBeanFactory就为空
+			// 如果没有自己去扩展，拿到这个parentBeanFactory就为空  一般情况为空
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
@@ -303,7 +306,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+			// 传进来的typeCheckOnly是false 取！ 就是true
 			if (!typeCheckOnly) {
+				// 标记这个Bean已经创建或将要去创建
 				markBeanAsCreated(beanName);
 			}
 
@@ -313,14 +318,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
+				// 判断当前Bean有没有以来其他Bean
 				if (dependsOn != null) {
+					// 遍历出所有的依赖进行处理
 					for (String dep : dependsOn) {
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 对依赖的Bean进行注册
 						registerDependentBean(dep, beanName);
 						try {
+							// 通过getBean进行实例化
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -333,6 +342,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Create bean instance.
 				// 创建Bean的实例
 				if (mbd.isSingleton()) {
+					// 这个getSingleton和上面的getSingleton是不同的两个方法
+					// 这个方法会实例对象，因为在上面的代码中层层验证都通过了
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							// 创建Bean  AbstractAutowireCapableBeanFactory的createBean
@@ -1589,6 +1600,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * creation of the specified bean.
 	 * @param beanName the name of the bean
 	 */
+	/**
+	 * 标记这个Bean已经创建或者是将要被创建  放入
+	 * @param beanName
+	 */
 	protected void markBeanAsCreated(String beanName) {
 		if (!this.alreadyCreated.contains(beanName)) {
 			synchronized (this.mergedBeanDefinitions) {
@@ -1596,6 +1611,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// Let the bean definition get re-merged now that we're actually creating
 					// the bean... just in case some of its metadata changed in the meantime.
 					clearMergedBeanDefinition(beanName);
+					//alreadyCreated是一个存放BeanName的Set，为什么是Set因为有些Bean可能会被创建多次，如原型Bean
 					this.alreadyCreated.add(beanName);
 				}
 			}

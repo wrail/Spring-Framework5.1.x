@@ -8,8 +8,6 @@ package mybatis.config;
 import mybatis.anno.Select;
 import mybatis.dao.IndexDao;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;

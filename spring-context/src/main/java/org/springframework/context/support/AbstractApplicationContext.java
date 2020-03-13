@@ -587,7 +587,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
-			//准备beanFactory
+			//准备beanFactory  吧BeanFactory必须的一些组件放进去
 			prepareBeanFactory(beanFactory);
 
 			try {

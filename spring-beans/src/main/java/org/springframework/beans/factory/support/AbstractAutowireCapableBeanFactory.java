@@ -502,8 +502,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 也就是说在Bean被实例化之前使用注册的后置处理器
+			// （可以说是最早执行的Bean后置处理器）InstantiationAwareBeanPostProcessor extends BeanPostProcessor可以自定义返回一个对象
+			// 通过代理实现，这个对象并没有完成Spring对bean进行的流程操作，仅仅就返回自己想要返回的对象
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+			// 一般都为空，源码中默认为空，如果自定义的就从这直接把Bean返回
 			if (bean != null) {
 				return bean;
 			}
@@ -512,6 +514,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName,
 					"BeanPostProcessor before instantiation of bean failed", ex);
 		}
+
 
 		try {
 			// 创建Bean的实例  doCreateBean
@@ -552,6 +555,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws BeanCreationException {
 
 		// Instantiate the bean.
+		//
 		BeanWrapper instanceWrapper = null;
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
@@ -597,7 +601,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// 设置属性
 			populateBean(beanName, mbd, instanceWrapper);
-			// 执行后置处理器，AOP就是在这里完成的
+			// 执行所有后置处理器，AOP就是在这里完成的
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1098,6 +1102,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object bean = null;
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
+			// hasInstantiationAwareBeanPostProcessors 是否实现了此接口
+			// 此接口的作用是可以自定义返回一个自定义对象，也就是不用Spring帮你做下面bean的流程操作了
+			//一般不会用到 Spring默认返回null
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
@@ -1773,7 +1780,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// 执行Bean生命周期重点Init方法
+			// 执行Bean生命周期中的Init方法，也就是初始化方法
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
 		catch (Throwable ex) {
