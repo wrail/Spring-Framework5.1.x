@@ -9,4 +9,5 @@ import anno.MyAnno;
 
 @MyAnno("ClassTest")
 public class ClassTest {
+
 }

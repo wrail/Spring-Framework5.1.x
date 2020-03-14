@@ -41,6 +41,8 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 1.1
  */
+//CglibSubclassingInstantiationStrategy继承了此类使用这个方法必须用到cglib 类库
+// 利用cglib为bean动态生成子类
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 	private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
@@ -57,12 +59,15 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	}
 
 
+
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+		// 检查bean中是否配置了lookup-method  或replace-method
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
+				// 有么有使用缓存到的构造方法或FactoryMethod方法
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
 				if (constructorToUse == null) {
 					final Class<?> clazz = bd.getBeanClass();
@@ -75,8 +80,10 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						}
 						else {
+							// 如果没有就得到默认的构造方法，也就是无参构造
 							constructorToUse = clazz.getDeclaredConstructor();
 						}
+						// 赋值给它，让它缓存起来这个构造方法
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					}
 					catch (Throwable ex) {
@@ -84,6 +91,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					}
 				}
 			}
+			// 根据构造方法实例化一个对象
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {

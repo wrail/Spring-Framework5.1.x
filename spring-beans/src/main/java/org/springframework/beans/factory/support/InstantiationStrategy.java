@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 1.1
  */
+// SimpleInstantiationStrategy是InstantiationStrategy的实现类，该类是一个简单的用于Bean实例化的类
 public interface InstantiationStrategy {
 
 	/**
@@ -44,6 +45,7 @@ public interface InstantiationStrategy {
 	 * @param owner the owning BeanFactory
 	 * @return a bean instance for this bean definition
 	 * @throws BeansException if the instantiation attempt failed
+	 * 根据名字从工厂返回bean实例
 	 */
 	Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner)
 			throws BeansException;

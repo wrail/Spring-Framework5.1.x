@@ -244,6 +244,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			throws BeanCreationException {
 
 		// Let's check for lookup methods here...
+		// 处理lookup
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			try {
 				ReflectionUtils.doWithMethods(beanClass, method -> {
@@ -270,6 +271,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		}
 
 		// Quick check on the concurrent map first, with minimal locking.
+		// 从构造方法缓存中拿 每实例一个Bean就把构造方法放进去缓存起来
 		Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 		if (candidateConstructors == null) {
 			// Fully synchronized resolution now...
@@ -292,6 +294,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					int nonSyntheticConstructors = 0;
 					for (Constructor<?> candidate : rawCandidates) {
 						if (!candidate.isSynthetic()) {
+							//在后面的if else中用到，用来统计有几个构造方法
 							nonSyntheticConstructors++;
 						}
 						else if (primaryConstructor != null) {
@@ -311,6 +314,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 							}
 						}
+
 						if (ann != null) {
 							if (requiredConstructor != null) {
 								throw new BeanCreationException(beanName,
@@ -334,6 +338,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							defaultConstructor = candidate;
 						}
 					}
+					// 如果是无参构造
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
 						if (requiredConstructor == null) {
@@ -349,6 +354,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						}
 						candidateConstructors = candidates.toArray(new Constructor<?>[0]);
 					}
+					// 有一个参数的构造方法
 					else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}

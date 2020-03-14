@@ -164,10 +164,13 @@ public abstract class BeanUtils {
 	 * @throws BeanInstantiationException if the bean cannot be instantiated
 	 * @see Constructor#newInstance
 	 */
+	// 使用构造方法进行类的实例化
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
 		Assert.notNull(ctor, "Constructor must not be null");
 		try {
+			// 设置构造方法为可访问
 			ReflectionUtils.makeAccessible(ctor);
+			// 反射创建对象，返回出去
 			return (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass()) ?
 					KotlinDelegate.instantiateClass(ctor, args) : ctor.newInstance(args));
 		}
