@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+// 给MapperScan扫描的类
 @Import(MyImportDefinitionRegistrar.class)
 public @interface MyMapperScan {
 }

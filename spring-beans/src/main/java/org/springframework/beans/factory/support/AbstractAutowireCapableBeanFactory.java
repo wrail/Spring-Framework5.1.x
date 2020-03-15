@@ -596,13 +596,22 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			//当对象完成实例化之后
+			/*
+			Spring中的对象严格来说可以分为四个阶段：
+
+			bean 不存在任何集合中
+			singleFactories map  此处就是给这个map 里put
+			earlySingletonObjects map中
+
+			 */
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			// 设置属性
+			// 利用后置处理器来设置属性，通过Common
 			populateBean(beanName, mbd, instanceWrapper);
 			// 执行所有后置处理器，AOP就是在这里完成的
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
@@ -1216,7 +1225,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 由后置处理器决定返回那些构造方法（如果是无参构造方法就为null）
 		// 默认调用的无参构造方法     也就是说@Component一个类，有两个构造方法
 		// 一个是有参的一个是无参的，在扫描实例化后会默认调用无参的
-		//
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		// 如果是有参构造  或者是自动装配模式是CONSTRUCTOR（默认是no但是采用的是byType的技术，一共有四种）
 		// Spring自动装配模型！=自动装配的技术  no==byType的技术
@@ -1380,7 +1388,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * or {@code null} if none (-> use constructor argument values from bean definition)
 	 * @return a BeanWrapper for the new instance
 	 */
-	//
+	// 构造方法自动装配  explicitArgs：用过getBean以编程方式传入的参数
+	// Class是无法进行自动装配的，必须是对象
 	protected BeanWrapper autowireConstructor(
 			String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
 
@@ -1406,10 +1415,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				return;
 			}
 		}
-
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
+		/*
+		主要使用下面这两个来完成
+		CommonAnnotationBeanPostProcessor 处理resource
+		AutowiredAnnotationBeanPostProcessor
+		 */
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
@@ -1420,10 +1433,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 			}
 		}
-
+        // Spring内部设置一些属性值  比如setPropertyValue  和setConstructor道理是一样的
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
+		// 是byName或byTpe  默认不会进 因为是no
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
@@ -1440,11 +1454,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
 		boolean needsDepCheck = (mbd.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE);
 
+		// 存放所有的属性描述也就是get和set
 		PropertyDescriptor[] filteredPds = null;
 		if (hasInstAwareBpps) {
 			if (pvs == null) {
 				pvs = mbd.getPropertyValues();
 			}
+			// ImportAwareBeanPostProcessor  Common Autowire
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;

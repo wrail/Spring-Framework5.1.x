@@ -41,10 +41,12 @@ import org.springframework.util.ObjectUtils;
  * @since 09.11.2003
  * @see BeanDefinition#getConstructorArgumentValues
  */
+// 存储构造方法值的一个数据结构
 public class ConstructorArgumentValues {
 
+	// 存放有index的value  如<1,Obj> <2,Obj2>
 	private final Map<Integer, ValueHolder> indexedArgumentValues = new LinkedHashMap<>();
-
+    // 仅仅存放的是参数的值
 	private final List<ValueHolder> genericArgumentValues = new ArrayList<>();
 
 

@@ -18,6 +18,7 @@ import org.springframework.core.type.AnnotationMetadata;
 public class MyImportDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
 
+	//修改FactoryBean的定义
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
@@ -25,6 +26,7 @@ public class MyImportDefinitionRegistrar implements ImportBeanDefinitionRegistra
 		GenericBeanDefinition beanDefinition = (GenericBeanDefinition) beanDefinitionBuilder.getBeanDefinition();
 		System.out.println(beanDefinition.getBeanClassName());
 		//传入beanDefinition.getBeanClassName()
+		// 给构造方法中添加一个参数
 		beanDefinition.getConstructorArgumentValues().addGenericArgumentValue("mybatis.dao.IndexDao");
 		beanDefinition.setBeanClass(MyFactoryBean.class);
 		registry.registerBeanDefinition("indexDao",beanDefinition);

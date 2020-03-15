@@ -79,14 +79,15 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
 	/** Cache of singleton factories: bean name to ObjectFactory. */
-	// 缓存单例工厂
+	// 缓存对象工厂 ObjectFactory可以看做一个Object
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
 	/** Cache of early singleton objects: bean name to bean instance. */
-    // 缓存提前dependon的单例，但还没有进行实例化
+    // 缓存提前曝光的对象
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
+	// Spring创建的所有对象都会在这里面放
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
 	/** Names of beans that are currently in creation. */
@@ -162,6 +163,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			if (!this.singletonObjects.containsKey(beanName)) {
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
+				// 每一个SpringBean的Name都会被放进这个set
 				this.registeredSingletons.add(beanName);
 			}
 		}
@@ -186,15 +188,20 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		// singletonObjects就是存放单例对象的地方，根据name拿出单例的实例对象
-		// 但是在我们初始化Bean的时候一般都不会get到
+		// 但是在我们初始化Bean的时候一般都不会get到  如果能拿到就返回
 		Object singletonObject = this.singletonObjects.get(beanName);
-        // singletonObject为空（说明在调用它代码的下面代码会进行Bean的初始化）
+        // singletonObject一般都为空
 		// isSingletonCurrentlyInCreation在此处是false，因为初始化bean还没有正式开始
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
+				// 看从提前曝光的缓存中能不能拿出对象，能拿出就返回
 				singletonObject = this.earlySingletonObjects.get(beanName);
+				// 如果拿不出对象  allowEarlyReference传入的固定是true
 				if (singletonObject == null && allowEarlyReference) {
+
+					// 从对象工厂缓存中get
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+                    // 如果不为null，就放进提前曝光对象中去
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
 						this.earlySingletonObjects.put(beanName, singletonObject);

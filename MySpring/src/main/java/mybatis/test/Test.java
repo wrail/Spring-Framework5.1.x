@@ -13,6 +13,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class Test {
 	public static void main(String[] args) {
+		// 加载自定义的配置类
 		AnnotationConfigApplicationContext applicationContext
 				= new AnnotationConfigApplicationContext(MyConfig.class);
 	/*	IndexDao dao = (IndexDao) applicationContext.getBean("indexDao");

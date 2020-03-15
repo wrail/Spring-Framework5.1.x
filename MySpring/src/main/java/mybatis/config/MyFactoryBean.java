@@ -15,7 +15,9 @@ import java.lang.reflect.Proxy;
 
 public class MyFactoryBean implements FactoryBean<Object>, InvocationHandler {
 
+	// 保证通用性，根据传入的class（接口）进行代理
 	Class<?> clazz;
+	// 提供一个构造方法，会在MyImportDefinitionRegistrar进行构造填充
 	public MyFactoryBean(Class<?> clazz){
 		this.clazz = clazz;
 	}
@@ -44,7 +46,9 @@ public class MyFactoryBean implements FactoryBean<Object>, InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		System.out.println("Proxy————————————————————————————————————————");
+		// 拿到方法
 		Method method1 = proxy.getClass().getInterfaces()[0].getMethod(method.getName(), String.class);
+		// 拿出我们自定义的Select注解并打印
 		Select select = method1.getDeclaredAnnotation(Select.class);
 		System.out.println(select.value());
 		return null;

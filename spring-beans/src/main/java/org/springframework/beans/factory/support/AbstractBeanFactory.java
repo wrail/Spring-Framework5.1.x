@@ -259,6 +259,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// 在初始化的时候先拿一下，看存不存在这个单例对象，如果不存在再进行实例化
 		// 为什么在要初始化的时候先进行get？在getBean的时候调用理所当然，在此就说不过去了
 		// 第二批初始化？懒加载？但是懒加载的话里面也必然是没有的
+
+		// 看完代码才发现创建bean的时候会存在依赖注入的情况，创建依赖时为了毕淼循环依赖
+		//Spring不等bean创建完成就将创建bean的ObjectFactory提早曝光
+		//也就是将ObjectFactory加入到缓存，一旦下一个bean创建时需要依赖上个bean就直接使用ObjectFactory
+        //缓存中的Bean并不是完全的Bean，是Bean的最原始状态
 		Object sharedInstance = getSingleton(beanName);
 		//如果存在此单例对象
 		if (sharedInstance != null && args == null) {
@@ -360,7 +365,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
-                // 原型
+                // 原型就重新创建
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
