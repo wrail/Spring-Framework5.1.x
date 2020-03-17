@@ -36,7 +36,6 @@ public class AnnotationConfigApplicationContext {
 				}else {
 					System.out.println("没有要扫描的类");
 				}
-
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

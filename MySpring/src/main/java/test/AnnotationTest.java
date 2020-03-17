@@ -14,8 +14,9 @@ public class AnnotationTest {
 
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext applicationContext=
-				new AnnotationConfigApplicationContext(AppConfig.class);
-		applicationContext.scan();
+				new AnnotationConfigApplicationContext();
+		applicationContext.register(AppConfig.class);
+		applicationContext.refresh();
 		System.out.println(applicationContext.getBean(AppConfig.class));
 
 //

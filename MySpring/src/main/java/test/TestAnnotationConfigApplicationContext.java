@@ -6,12 +6,12 @@ package test;
  */
 
 import org.spring.utils.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 public class TestAnnotationConfigApplicationContext {
 
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
 		annotationConfigApplicationContext.scan("com.wrial.service");
+
 	}
 }

@@ -428,7 +428,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			 */
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-			//资源文件（使用ASM读取文件）
+			//资源文件（使用ASM读取文件） 扫描到目录下的所有文件
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -439,7 +439,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
-						//是否是候选组件
+						//是否是候选组件  在给定路径下并且加了@Component注解
 						if (isCandidateComponent(metadataReader)) {
 							//继承的是GenericBeanDefinition（GBD继承AbstractBeanDefinition）
 							//实现AnnotatedBeanDefinition
@@ -504,11 +504,13 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return whether the class qualifies as a candidate component
 	 */
 	protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
+		// 判断的是是否在basePackage下
 		for (TypeFilter tf : this.excludeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return false;
 			}
 		}
+		// 判断的是是否加了@Component注解
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);
