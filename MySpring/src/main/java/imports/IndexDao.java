@@ -5,7 +5,8 @@ package imports;
  * @Description
  */
 
-public interface IndexDao {
+
+public interface IndexDao  {
 
 	void query();
 }

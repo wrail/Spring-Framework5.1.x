@@ -47,6 +47,7 @@ final class LogAdapter {
 
 	private static final LogApi logApi;
 
+	// SLFJ>LOG4J2>LOG4J>JUL
 	static {
 		if (isPresent(LOG4J_SPI)) {
 			if (isPresent(LOG4J_SLF4J_PROVIDER) && isPresent(SLF4J_SPI)) {
@@ -55,6 +56,7 @@ final class LogAdapter {
 				// the latter does not have location awareness support.
 				logApi = LogApi.SLF4J_LAL;
 			}
+			// log4j  2.x
 			else {
 				// Use Log4j 2.x directly, including location awareness support
 				logApi = LogApi.LOG4J;

@@ -76,7 +76,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		/**
 		 * 实例化reader
 		 * AnnotatedBeanDefinition  被注解的Bean
-		 * 读取那些被加注解了的Bean
+		 * 读取那些被加注解了的Bean   会默认去注册那些Spring的内部类
 		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 
@@ -94,6 +94,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext(DefaultListableBeanFactory beanFactory) {
 		super(beanFactory);
+		// 下面代码会注册Spring的内部类
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}

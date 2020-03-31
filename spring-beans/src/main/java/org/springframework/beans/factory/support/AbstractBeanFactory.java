@@ -258,7 +258,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Eagerly check singleton cache for manually registered singletons.
 		// 在初始化的时候先拿一下，看存不存在这个单例对象，如果不存在再进行实例化
 		// 为什么在要初始化的时候先进行get？在getBean的时候调用理所当然，在此就说不过去了
-		// 第二批初始化？懒加载？但是懒加载的话里面也必然是没有的
+		// 第二批初始化？懒加载？但是懒加载的话里面也必然是没有的(思路不对)
 
 		// 看完代码才发现创建bean的时候会存在依赖注入的情况，创建依赖时为了毕淼循环依赖
 		//Spring不等bean创建完成就将创建bean的ObjectFactory提早曝光

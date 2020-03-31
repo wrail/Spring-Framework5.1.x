@@ -133,7 +133,8 @@ public abstract class AnnotationConfigUtils {
 	 * Register all relevant annotation post processors in the given registry.
 	 * @param registry the registry to operate on
 	 *
-	 * 在给定注册表中注册所有相关的注解类的处理器。
+	 * 在给定注册表中注册所有相关的注解类的处理器，就是Spring内部的8个内部bean，如果是原生Spring会是5个
+	 *
 	 */
 
 	public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
